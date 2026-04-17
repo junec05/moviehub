@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieHub</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-top">
+            <h1>🎬 MovieHub</h1>
+            <div class="header-buttons" id="headerButtons">
+                <button id="openLoginBtn">Iniciar sesión</button>
+                <button id="openRegisterBtn" class="secondary">Registrarse</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <nav class="main-nav">
+                <button class="nav-btn active" data-section="inicioSection">Inicio</button>
+                <button class="nav-btn" data-section="carteleraSection">Cartelera</button>
+                <button class="nav-btn" data-section="favoritosSection">Favoritos</button>
+                <button class="nav-btn" data-section="adminSection">Panel admin</button>
+                <button class="nav-btn" data-section="cuentaSection">Mi cuenta</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container main-content">
+
+        <section id="inicioSection" class="content-section active-section">
+            <section class="welcome-box">
+                <h2>Bienvenida a MovieHub</h2>
+                <p>
+                    Esta aplicación permite consultar la cartelera de películas, ver horarios,
+                    guardar favoritas y gestionar el catálogo si eres administrador.
+                </p>
+                <p>
+                    Usa el menú superior para moverte entre las distintas secciones.
+                </p>
+            </section>
+        </section>
+
+        <section id="carteleraSection" class="content-section hidden">
+            <section class="welcome-box">
+                <h2>Cartelera</h2>
+                <p>Consulta todas las películas disponibles actualmente.</p>
+            </section>
+
+            <div id="moviesContainer" class="movies-grid"></div>
+        </section>
+
+        <section id="favoritosSection" class="content-section hidden">
+            <section class="welcome-box">
+                <h2>Mis favoritos</h2>
+                <p>Aquí aparecerán las películas que hayas guardado.</p>
+            </section>
+
+            <div id="favoritesContainer" class="movies-grid"></div>
+        </section>
+
+        <section id="adminSection" class="content-section hidden">
+            <section id="adminPanel" class="panel hidden">
+                <h2>Panel de administrador</h2>
+
+                <form id="movieForm" class="movie-form">
+                    <input type="hidden" id="movieId">
+
+                    <label>Título</label>
+                    <input type="text" id="title" required>
+
+                    <label>Director</label>
+                    <input type="text" id="director" required>
+
+                    <label>Género</label>
+                    <input type="text" id="genre" required>
+
+                    <label>Duración (minutos)</label>
+                    <input type="number" id="duration" required>
+
+                    <label>URL de la portada</label>
+                    <input type="text" id="poster_url">
+
+                    <label>Sinopsis</label>
+                    <textarea id="synopsis" required></textarea>
+
+                    <label>Edad recomendada</label>
+                    <input type="text" id="age_rating" required>
+
+                    <label>Cine</label>
+                    <input type="text" id="cinema" required>
+
+                    <label>Fecha y horarios</label>
+                    <input type="text" id="showtimes" required>
+
+                    <div class="form-buttons">
+                        <button type="submit" id="saveMovieBtn">Guardar película</button>
+                        <button type="button" id="cancelEditBtn" class="secondary hidden">Cancelar edición</button>
+                    </div>
+                </form>
+            </section>
+        </section>
+
+        <section id="cuentaSection" class="content-section hidden">
+            <section class="welcome-box">
+                <h2>Mi cuenta</h2>
+                <p id="userInfo">No has iniciado sesión.</p>
+            </section>
+        </section>
+
+    </main>
+
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Iniciar sesión</h3>
+            <form id="loginForm">
+                <label>Usuario</label>
+                <input type="text" id="loginUsername" required>
+
+                <label>Contraseña</label>
+                <input type="password" id="loginPassword" required>
+
+                <div class="form-buttons">
+                    <button type="submit">Entrar</button>
+                    <button type="button" id="closeLoginBtn" class="secondary">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Registro</h3>
+            <form id="registerForm">
+                <label>Usuario</label>
+                <input type="text" id="registerUsername" required>
+
+                <label>Email</label>
+                <input type="email" id="registerEmail" required>
+
+                <label>Contraseña</label>
+                <input type="password" id="registerPassword" required>
+
+                <div class="form-buttons">
+                    <button type="submit">Crear cuenta</button>
+                    <button type="button" id="closeRegisterBtn" class="secondary">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
