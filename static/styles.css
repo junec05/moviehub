@@ -6,8 +6,8 @@
 }
 
 body {
-    background: #f3f4f6;
-    color: #222;
+    background: #071a2f;
+    color: #f8fafc;
 }
 
 .container {
@@ -16,13 +16,18 @@ body {
     margin: 0 auto;
 }
 
+/* HEADER ESTILO CINE */
 .main-header {
-    background: #111827;
+    background:
+        radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.12), transparent 22%),
+        linear-gradient(135deg, #063b63 0%, #061b33 55%, #020617 100%);
     color: white;
-    padding-top: 20px;
+    padding-top: 22px;
     padding-bottom: 0;
     margin-bottom: 30px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    border-left: 8px dashed #ff7a1a;
+    border-right: 8px dashed #ff7a1a;
 }
 
 .header-top {
@@ -33,12 +38,21 @@ body {
     padding-bottom: 20px;
 }
 
+.header-top h1 {
+    color: #fff7d6;
+    font-size: 42px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 5px 10px rgba(0, 0, 0, 0.6);
+}
+
 .header-buttons {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
+/* NAV */
 .main-nav {
     display: flex;
     gap: 10px;
@@ -47,72 +61,96 @@ body {
 }
 
 .nav-btn {
-    background: transparent;
-    color: white;
-    border: 1px solid #374151;
-    padding: 10px 16px;
-    border-radius: 8px 8px 0 0;
+    background: rgba(255, 122, 26, 0.12);
+    color: #fff7d6;
+    border: 1px solid #ff7a1a;
+    padding: 13px 20px;
+    border-radius: 6px 6px 0 0;
     cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .nav-btn:hover {
-    background: #1f2937;
+    background: rgba(255, 122, 26, 0.28);
 }
 
 .nav-btn.active {
-    background: white;
-    color: #111827;
-    border-color: white;
+    background: #ff7a1a;
+    color: #061b33;
+    border-color: #ff7a1a;
 }
 
+/* MAIN */
 .main-content {
     padding-bottom: 30px;
 }
 
 .welcome-box,
 .panel {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
+    background: linear-gradient(180deg, #0b2f52, #071f3a);
+    border: 1px solid rgba(255, 122, 26, 0.45);
+    border-radius: 10px;
+    padding: 22px;
     margin-bottom: 25px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 h1, h2, h3 {
     margin-bottom: 15px;
 }
 
+h2, h3 {
+    color: #fff7d6;
+}
+
 p {
     margin-bottom: 10px;
     line-height: 1.5;
+    color: #e5e7eb;
 }
 
+/* BOTONES */
 button {
-    background: #2563eb;
-    color: white;
+    background: linear-gradient(180deg, #ff9a2f, #ff6b00);
+    color: #061b33;
     border: none;
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: 15px 22px;
+    border-radius: 7px;
     cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #b84700;
+    transition: all 0.15s ease;
 }
 
 button:hover {
-    opacity: 0.92;
+    transform: translateY(-2px);
+    opacity: 0.95;
 }
 
 button.secondary {
-    background: #6b7280;
+    background: linear-gradient(180deg, #2dd4bf, #0891b2);
+    color: white;
+    box-shadow: 0 4px 0 #075985;
 }
 
 button.danger {
-    background: #dc2626;
+    background: linear-gradient(180deg, #fb7185, #dc2626);
+    color: white;
+    box-shadow: 0 4px 0 #7f1d1d;
 }
 
 button:disabled {
-    background: #9ca3af;
+    background: #64748b;
+    color: #cbd5e1;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
+/* UTILIDADES */
 .hidden {
     display: none !important;
 }
@@ -125,17 +163,25 @@ button:disabled {
     display: block;
 }
 
+/* FORMULARIO */
 .movie-form {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
 }
 
 .movie-form input,
 .movie-form textarea {
-    padding: 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
+    padding: 13px;
+    border: 1px solid #ff7a1a;
+    border-radius: 7px;
+    background: #020617;
+    color: white;
+}
+
+.movie-form input::placeholder,
+.movie-form textarea::placeholder {
+    color: #94a3b8;
 }
 
 .movie-form textarea {
@@ -143,34 +189,49 @@ button:disabled {
     resize: vertical;
 }
 
+.movie-form input:focus,
+.movie-form textarea:focus {
+    outline: none;
+    border-color: #ffd166;
+    box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.25);
+}
+
 .form-buttons {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
     margin-top: 10px;
 }
 
+/* GRID PELÍCULAS */
 .movies-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
     margin: 20px 0 30px;
 }
 
 .movie-card {
-    background: white;
-    border-radius: 12px;
+    background: #061b33;
+    border: 3px solid #ff7a1a;
+    border-radius: 4px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.55);
     display: flex;
     flex-direction: column;
+    transition: transform 0.2s ease;
+}
+
+.movie-card:hover {
+    transform: translateY(-5px);
 }
 
 .movie-card img {
     width: 100%;
     height: 380px;
     object-fit: cover;
-    background: #e5e7eb;
+    background: #0f172a;
+    border-bottom: 3px solid #ff7a1a;
 }
 
 .movie-card-content {
@@ -179,11 +240,14 @@ button:disabled {
 
 .movie-card-content h3 {
     margin-bottom: 10px;
+    color: #ff9a2f;
+    text-transform: uppercase;
 }
 
 .movie-card-content p {
     margin-bottom: 8px;
     line-height: 1.4;
+    color: #e5e7eb;
 }
 
 .movie-card-actions {
@@ -193,10 +257,11 @@ button:disabled {
     margin-top: 15px;
 }
 
+/* MODAL */
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(2, 6, 23, 0.78);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -204,21 +269,31 @@ button:disabled {
 }
 
 .modal-content {
-    background: white;
+    background: linear-gradient(180deg, #0b2f52, #071f3a);
     width: 100%;
     max-width: 420px;
-    border-radius: 12px;
-    padding: 20px;
-    color: #222;
+    border-radius: 10px;
+    border: 2px solid #ff7a1a;
+    padding: 22px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.55);
 }
 
 .modal-content form {
     display: grid;
-    gap: 10px;
+    gap: 12px;
 }
 
 .modal-content input {
-    padding: 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
+    padding: 13px;
+    border: 1px solid #ff7a1a;
+    border-radius: 7px;
+    background: #020617;
+    color: white;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: #ffd166;
+    box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.25);
 }
