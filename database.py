@@ -80,7 +80,7 @@ def init_database():
                 "Paul Atreides se une a los Fremen mientras busca venganza y trata de evitar un futuro terrible.",
                 "12",
                 "Cines Bilbao Centro",
-                "15/04/2026 - 17:00, 20:00, 22:30"
+                "15/05/2026 - 17:00, 20:00, 22:30"
             ),
             (
                 "Inside Out 2",

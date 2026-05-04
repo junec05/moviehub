@@ -48,6 +48,34 @@
                 <p>Consulta todas las películas disponibles actualmente.</p>
             </section>
 
+            <section class="filter-box">
+                <div>
+                    <label>Tipo de filtro</label>
+                    <select id="filterType">
+                        <option value="none">Sin filtro</option>
+                        <option value="cinema">Filtrar por cine</option>
+                        <option value="date">Filtrar por fecha</option>
+                        <option value="both">Filtrar por cine y fecha</option>
+                    </select>
+                </div>
+
+                <div id="cinemaFilterBox" class="hidden">
+                    <label>Cine</label>
+                    <select id="cinemaFilter">
+                        <option value="">Selecciona un cine</option>
+                    </select>
+                </div>
+
+                <div id="dateFilterBox" class="hidden">
+                    <label>Fecha</label>
+                    <input type="date" id="dateFilter">
+                </div>
+
+                <button type="button" id="clearFiltersBtn" class="secondary">
+                    Limpiar filtros
+                </button>
+            </section>
+
             <div id="moviesContainer" class="movies-grid"></div>
         </section>
 
@@ -57,7 +85,14 @@
                 <p>Aquí aparecerán las películas que hayas guardado.</p>
             </section>
 
-            <div id="favoritesContainer" class="movies-grid"></div>
+            <div id="favoritesContainer"></div>
+        </section>
+
+        <section id="detalleSection" class="content-section hidden">
+            <section class="welcome-box">
+                <button class="secondary" onclick="showSection('favoritosSection')">Volver a favoritos</button>
+                <div id="movieDetailContainer"></div>
+            </section>
         </section>
 
         <section id="adminSection" class="content-section hidden">

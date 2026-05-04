@@ -206,9 +206,9 @@ button:disabled {
 /* GRID PELÍCULAS */
 .movies-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 22px;
-    margin: 20px 0 30px;
+    grid-template-columns: repeat(auto-fill, 310px);
+    gap: 18px;
+    justify-content: start;
 }
 
 .movie-card {
@@ -220,6 +220,7 @@ button:disabled {
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease;
+    width: 310px;
 }
 
 .movie-card:hover {
@@ -296,4 +297,224 @@ button:disabled {
     outline: none;
     border-color: #ffd166;
     box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.25);
+}
+/* FAVORITOS EN FORMATO PEQUEÑO */
+#favoritesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.favorite-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: #061b33;
+    border: 2px solid #ff7a1a;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.4);
+}
+
+.favorite-img {
+    width: 95px;
+    height: 130px;
+    object-fit: cover;
+    border: 2px solid #ff7a1a;
+    border-radius: 5px;
+}
+
+.favorite-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.favorite-info h3 {
+    margin: 0;
+}
+
+.movie-link {
+    color: #ff9a2f;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.movie-link:hover {
+    text-decoration: underline;
+}
+
+/* DETALLE DE LA PELÍCULA */
+.movie-detail {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+.detail-img {
+    width: 260px;
+    height: 380px;
+    object-fit: cover;
+    border: 3px solid #ff7a1a;
+    border-radius: 6px;
+}
+
+.detail-info {
+    flex: 1;
+}
+
+.detail-info h2 {
+    color: #ff9a2f;
+    text-transform: uppercase;
+}
+/* ENLACE DEL TÍTULO EN FAVORITOS */
+.movie-link {
+    color: #ff7a1a;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.movie-link:hover {
+    text-decoration: underline;
+}
+
+/* DETALLE DE PELÍCULA EN OTRA PESTAÑA */
+.movie-detail {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+.detail-img {
+    width: 260px;
+    height: 380px;
+    object-fit: cover;
+    border: 3px solid #ff7a1a;
+    border-radius: 6px;
+}
+
+.detail-info {
+    flex: 1;
+}
+
+.detail-info h2 {
+    color: #ff7a1a;
+    text-transform: uppercase;
+    margin-top: 0;
+}
+
+.detail-info p {
+    font-size: 15px;
+    line-height: 1.5;
+}
+/* FAVORITOS EN PEQUEÑO */
+#favoritesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.favorite-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: #061b33;
+    border: 2px solid #ff7a1a;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.4);
+}
+
+.favorite-img {
+    width: 95px;
+    height: 130px;
+    object-fit: cover;
+    border: 2px solid #ff7a1a;
+    border-radius: 5px;
+}
+
+.favorite-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.movie-link {
+    color: #ff7a1a;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.movie-link:hover {
+    text-decoration: underline;
+}
+
+/* DETALLE DESPLEGADO EN FAVORITOS */
+.movie-detail-box {
+    margin-top: 20px;
+    background: #061b33;
+    border: 2px solid #ff7a1a;
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.close-detail-btn {
+    margin-bottom: 15px;
+}
+
+.movie-detail {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+}
+
+.detail-img {
+    width: 230px;
+    height: 340px;
+    object-fit: cover;
+    border: 3px solid #ff7a1a;
+    border-radius: 6px;
+}
+
+.detail-info {
+    flex: 1;
+}
+
+.detail-info h2 {
+    color: #ff7a1a;
+    text-transform: uppercase;
+    margin-top: 0;
+}
+
+.detail-info p {
+    font-size: 15px;
+    line-height: 1.5;
+}
+.filter-box {
+    background: #061b33;
+    border: 2px solid #ff7a1a;
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: end;
+}
+
+.filter-box label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.filter-box select,
+.filter-box input {
+    padding: 9px;
+    border-radius: 5px;
+    border: 1px solid #ff7a1a;
+    background: #ffffff;
+    color: #061b33;
 }

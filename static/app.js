@@ -7,6 +7,12 @@ const favoritesContainer = document.getElementById("favoritesContainer");
 const adminPanel = document.getElementById("adminPanel");
 const userInfo = document.getElementById("userInfo");
 const headerButtons = document.getElementById("headerButtons");
+const filterType = document.getElementById("filterType");
+const cinemaFilterBox = document.getElementById("cinemaFilterBox");
+const cinemaFilter = document.getElementById("cinemaFilter");
+const dateFilterBox = document.getElementById("dateFilterBox");
+const dateFilter = document.getElementById("dateFilter");
+const clearFiltersBtn = document.getElementById("clearFiltersBtn");
 
 const movieForm = document.getElementById("movieForm");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
@@ -52,6 +58,15 @@ cancelEditBtn.addEventListener("click", resetMovieForm);
 document.getElementById("loginForm").addEventListener("submit", loginUser);
 document.getElementById("registerForm").addEventListener("submit", registerUser);
 movieForm.addEventListener("submit", saveMovie);
+
+filterType.addEventListener("change", () => {
+    updateFilterVisibility();
+    applyMovieFilters();
+});
+
+cinemaFilter.addEventListener("change", applyMovieFilters);
+dateFilter.addEventListener("change", applyMovieFilters);
+clearFiltersBtn.addEventListener("click", clearMovieFilters);
 
 async function apiFetch(url, options = {}) {
     const response = await fetch(url, {
@@ -190,47 +205,145 @@ async function logoutUser() {
 async function loadMovies() {
     try {
         allMovies = await apiFetch("/api/movies");
+        fillCinemaFilter();
         renderMovies();
     } catch (error) {
         alert(error.message);
     }
 }
 
-function renderMovies() {
+function renderMovies(moviesToRender = null) {
     moviesContainer.innerHTML = "";
 
-    if (allMovies.length === 0) {
-        moviesContainer.innerHTML = "<p>No hay películas disponibles.</p>";
+    const movies = moviesToRender || allMovies;
+
+    if (movies.length === 0) {
+        moviesContainer.innerHTML = "<p>No hay películas disponibles con esos filtros.</p>";
         return;
     }
 
-    allMovies.forEach(movie => {
+    movies.forEach(movie => {
         const card = document.createElement("div");
         card.className = "movie-card";
 
         const isFavorite = favoriteIds.includes(movie.id);
 
         card.innerHTML = `
-            <img src="${movie.poster_url || 'https://via.placeholder.com/400x600?text=Sin+Portada'}" alt="${movie.title}">
-            <div class="movie-card-content">
-                <h3>${movie.title}</h3>
-                <p><strong>Director:</strong> ${movie.director}</p>
-                <p><strong>Género:</strong> ${movie.genre}</p>
-                <p><strong>Duración:</strong> ${movie.duration} min</p>
-                <p><strong>Edad recomendada:</strong> ${movie.age_rating}</p>
-                <p><strong>Cine:</strong> ${movie.cinema}</p>
-                <p><strong>Horarios:</strong> ${movie.showtimes}</p>
-                <p><strong>Sinopsis:</strong> ${movie.synopsis}</p>
-                <div class="movie-card-actions">
-                    ${renderButtons(movie, isFavorite)}
-                </div>
-            </div>
+            <img src="${movie.poster_url}" alt="${movie.title}">
+
+            <h3>${movie.title}</h3>
+
+            <p><strong>Director:</strong> ${movie.director}</p>
+            <p><strong>Género:</strong> ${movie.genre}</p>
+            <p><strong>Duración:</strong> ${movie.duration} min</p>
+            <p><strong>Edad recomendada:</strong> ${movie.age_rating}</p>
+            <p><strong>Cine:</strong> ${movie.cinema}</p>
+            <p><strong>Horarios:</strong> ${movie.showtimes}</p>
+            <p><strong>Sinopsis:</strong> ${movie.synopsis}</p>
+
+            ${renderButtons(movie, isFavorite)}
         `;
 
         moviesContainer.appendChild(card);
     });
 
     assignDynamicButtons();
+}
+
+function fillCinemaFilter() {
+    cinemaFilter.innerHTML = `<option value="">Selecciona un cine</option>`;
+
+    const cinemas = [...new Set(allMovies.map(movie => movie.cinema))]
+        .filter(cinema => cinema && cinema.trim() !== "")
+        .sort();
+
+    cinemas.forEach(cinema => {
+        const option = document.createElement("option");
+        option.value = cinema;
+        option.textContent = cinema;
+        cinemaFilter.appendChild(option);
+    });
+}
+
+function updateFilterVisibility() {
+    const selectedFilter = filterType.value;
+
+    cinemaFilterBox.classList.add("hidden");
+    dateFilterBox.classList.add("hidden");
+
+    if (selectedFilter === "cinema") {
+        cinemaFilterBox.classList.remove("hidden");
+        dateFilter.value = "";
+    }
+
+    if (selectedFilter === "date") {
+        dateFilterBox.classList.remove("hidden");
+        cinemaFilter.value = "";
+    }
+
+    if (selectedFilter === "both") {
+        cinemaFilterBox.classList.remove("hidden");
+        dateFilterBox.classList.remove("hidden");
+    }
+
+    if (selectedFilter === "none") {
+        cinemaFilter.value = "";
+        dateFilter.value = "";
+        renderMovies();
+    }
+}
+
+function applyMovieFilters() {
+    const selectedFilter = filterType.value;
+    const selectedCinema = cinemaFilter.value;
+    const selectedDate = dateFilter.value;
+
+    let filteredMovies = allMovies;
+
+    if ((selectedFilter === "cinema" || selectedFilter === "both") && selectedCinema !== "") {
+        filteredMovies = filteredMovies.filter(movie => movie.cinema === selectedCinema);
+    }
+
+    if ((selectedFilter === "date" || selectedFilter === "both") && selectedDate !== "") {
+        filteredMovies = filteredMovies.filter(movie => movieHasDate(movie, selectedDate));
+    }
+
+    renderMovies(filteredMovies);
+}
+
+function movieHasDate(movie, selectedDate) {
+    if (!movie.showtimes) {
+        return false;
+    }
+
+    const formattedDate = formatDateToSpanish(selectedDate);
+
+    return movie.showtimes.includes(formattedDate);
+}
+
+function formatDateToSpanish(dateValue) {
+    const parts = dateValue.split("-");
+
+    if (parts.length !== 3) {
+        return dateValue;
+    }
+
+    const year = parts[0];
+    const month = parts[1];
+    const day = parts[2];
+
+    return `${day}/${month}/${year}`;
+}
+
+function clearMovieFilters() {
+    filterType.value = "none";
+    cinemaFilter.value = "";
+    dateFilter.value = "";
+
+    cinemaFilterBox.classList.add("hidden");
+    dateFilterBox.classList.add("hidden");
+
+    renderMovies();
 }
 
 function renderButtons(movie, isFavorite) {
@@ -379,19 +492,21 @@ function renderFavorites(favorites) {
 
     favorites.forEach(movie => {
         const card = document.createElement("div");
-        card.className = "movie-card";
+        card.className = "favorite-card";
 
         card.innerHTML = `
-            <img src="${movie.poster_url || 'https://via.placeholder.com/400x600?text=Sin+Portada'}" alt="${movie.title}">
-            <div class="movie-card-content">
-                <h3>${movie.title}</h3>
-                <p><strong>Director:</strong> ${movie.director}</p>
-                <p><strong>Género:</strong> ${movie.genre}</p>
-                <p><strong>Cine:</strong> ${movie.cinema}</p>
-                <p><strong>Horarios:</strong> ${movie.showtimes}</p>
-                <div class="movie-card-actions">
-                    <button class="remove-favorite-btn secondary" data-id="${movie.id}">Quitar de favoritos</button>
-                </div>
+            <img src="${movie.poster_url}" alt="${movie.title}" class="favorite-img">
+
+            <div class="favorite-info">
+                <h3>
+                    <a href="#" class="movie-link" data-id="${movie.id}">
+                        ${movie.title}
+                    </a>
+                </h3>
+
+                <button class="danger remove-favorite-btn" data-id="${movie.id}">
+                    Quitar de favoritos
+                </button>
             </div>
         `;
 
@@ -399,6 +514,54 @@ function renderFavorites(favorites) {
     });
 
     assignDynamicButtons();
+
+    document.querySelectorAll(".movie-link").forEach(link => {
+        link.addEventListener("click", event => {
+            event.preventDefault();
+            showMovieDetail(link.dataset.id);
+        });
+    });
+}
+function showMovieDetail(movieId) {
+    const movie = allMovies.find(m => m.id == movieId);
+
+    if (!movie) {
+        alert("Película no encontrada");
+        return;
+    }
+
+    const detailContainer = document.getElementById("movieDetailContainer");
+
+    detailContainer.innerHTML = `
+        <div class="movie-detail-box">
+            <button class="danger close-detail-btn" onclick="closeMovieDetail()">
+                Cerrar
+            </button>
+
+            <div class="movie-detail">
+                <img src="${movie.poster_url}" alt="${movie.title}" class="detail-img">
+
+                <div class="detail-info">
+                    <h2>${movie.title}</h2>
+
+                    <p><strong>Director:</strong> ${movie.director}</p>
+                    <p><strong>Género:</strong> ${movie.genre}</p>
+                    <p><strong>Duración:</strong> ${movie.duration} min</p>
+                    <p><strong>Edad recomendada:</strong> ${movie.age_rating}</p>
+                    <p><strong>Cine:</strong> ${movie.cinema}</p>
+                    <p><strong>Horarios:</strong> ${movie.showtimes}</p>
+                    <p><strong>Sinopsis:</strong> ${movie.synopsis}</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    detailContainer.classList.remove("hidden");
+}
+function closeMovieDetail() {
+    const detailContainer = document.getElementById("movieDetailContainer");
+    detailContainer.innerHTML = "";
+    detailContainer.classList.add("hidden");
 }
 
 async function addFavorite(movieId) {
