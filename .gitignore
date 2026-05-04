@@ -1,0 +1,30 @@
+# PyCharm
+.idea/
+shelf/
+workspace.xml
+queries/
+dataSources/
+dataSources.local.xml
+httpRequests/
+
+# Entornos virtuales
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Base de datos local
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Variables privadas
+.env
+
+# Sistema
+.DS_Store
