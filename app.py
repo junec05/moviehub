@@ -130,11 +130,53 @@ def get_movies():
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM movies ORDER BY id DESC")
-    movies = [dict(row) for row in cursor.fetchall()]
+    cursor.execute("""
+        SELECT
+            m.id,
+            m.title,
+            m.director,
+            m.genre,
+            m.duration,
+            m.poster_url,
+            m.synopsis,
+            m.age_rating,
+            s.cinema,
+            s.screening_date,
+            s.screening_time
+        FROM movies m
+        LEFT JOIN screenings s ON m.id = s.movie_id
+        ORDER BY m.title, s.screening_date, s.screening_time
+    """)
 
+    rows = cursor.fetchall()
     conn.close()
-    return jsonify(movies)
+
+    movies_dict = {}
+
+    for row in rows:
+        movie_id = row["id"]
+
+        if movie_id not in movies_dict:
+            movies_dict[movie_id] = {
+                "id": row["id"],
+                "title": row["title"],
+                "director": row["director"],
+                "genre": row["genre"],
+                "duration": row["duration"],
+                "poster_url": row["poster_url"],
+                "synopsis": row["synopsis"],
+                "age_rating": row["age_rating"],
+                "screenings": []
+            }
+
+        if row["screening_date"] is not None:
+            movies_dict[movie_id]["screenings"].append({
+                "cinema": row["cinema"],
+                "date": row["screening_date"],
+                "time": row["screening_time"]
+            })
+
+    return jsonify(list(movies_dict.values()))
 
 
 @app.route("/api/movies/<int:movie_id>", methods=["GET"])

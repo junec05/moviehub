@@ -5,8 +5,10 @@ let favoriteIds = [];
 const moviesContainer = document.getElementById("moviesContainer");
 const favoritesContainer = document.getElementById("favoritesContainer");
 const adminPanel = document.getElementById("adminPanel");
+const adminMessage = document.getElementById("adminMessage");
 const userInfo = document.getElementById("userInfo");
 const headerButtons = document.getElementById("headerButtons");
+
 const filterType = document.getElementById("filterType");
 const cinemaFilterBox = document.getElementById("cinemaFilterBox");
 const cinemaFilter = document.getElementById("cinemaFilter");
@@ -33,7 +35,12 @@ function showSection(sectionId) {
     navButtons.forEach(btn => btn.classList.remove("active"));
     contentSections.forEach(section => section.classList.add("hidden"));
 
-    document.querySelector(`[data-section="${sectionId}"]`).classList.add("active");
+    const navButton = document.querySelector(`[data-section="${sectionId}"]`);
+
+    if (navButton) {
+        navButton.classList.add("active");
+    }
+
     document.getElementById(sectionId).classList.remove("hidden");
 }
 
@@ -105,6 +112,7 @@ function updateUIByUser() {
     if (!currentUser) {
         userInfo.textContent = "No has iniciado sesión.";
         adminPanel.classList.add("hidden");
+        adminMessage.classList.remove("hidden");
 
         headerButtons.innerHTML = `
             <button id="openLoginBtn">Iniciar sesión</button>
@@ -129,8 +137,10 @@ function updateUIByUser() {
 
         if (currentUser.role === "admin") {
             adminPanel.classList.remove("hidden");
+            adminMessage.classList.add("hidden");
         } else {
             adminPanel.classList.add("hidden");
+            adminMessage.classList.remove("hidden");
             loadFavorites();
         }
     }
@@ -215,7 +225,7 @@ async function loadMovies() {
 function renderMovies(moviesToRender = null) {
     moviesContainer.innerHTML = "";
 
-    const movies = moviesToRender || allMovies;
+    const movies = moviesToRender || getMoviesWithClosestScreening();
 
     if (movies.length === 0) {
         moviesContainer.innerHTML = "<p>No hay películas disponibles con esos filtros.</p>";
@@ -227,21 +237,27 @@ function renderMovies(moviesToRender = null) {
         card.className = "movie-card";
 
         const isFavorite = favoriteIds.includes(movie.id);
+        const screeningsHtml = getScreeningsHtml(movie);
 
         card.innerHTML = `
             <img src="${movie.poster_url}" alt="${movie.title}">
 
-            <h3>${movie.title}</h3>
+            <div class="movie-card-content">
+                <h3>${movie.title}</h3>
 
-            <p><strong>Director:</strong> ${movie.director}</p>
-            <p><strong>Género:</strong> ${movie.genre}</p>
-            <p><strong>Duración:</strong> ${movie.duration} min</p>
-            <p><strong>Edad recomendada:</strong> ${movie.age_rating}</p>
-            <p><strong>Cine:</strong> ${movie.cinema}</p>
-            <p><strong>Horarios:</strong> ${movie.showtimes}</p>
-            <p><strong>Sinopsis:</strong> ${movie.synopsis}</p>
+                <p><strong>Director:</strong> ${movie.director}</p>
+                <p><strong>Género:</strong> ${movie.genre}</p>
+                <p><strong>Duración:</strong> ${movie.duration} min</p>
+                <p><strong>Edad recomendada:</strong> ${movie.age_rating}</p>
 
-            ${renderButtons(movie, isFavorite)}
+                ${screeningsHtml}
+
+                <p><strong>Sinopsis:</strong> ${movie.synopsis}</p>
+            </div>
+
+            <div class="movie-card-actions">
+                ${renderButtons(movie, isFavorite)}
+            </div>
         `;
 
         moviesContainer.appendChild(card);
@@ -250,12 +266,137 @@ function renderMovies(moviesToRender = null) {
     assignDynamicButtons();
 }
 
+function getScreeningsHtml(movie) {
+    let screenings = [];
+
+    if (movie.selectedScreenings && movie.selectedScreenings.length > 0) {
+        screenings = movie.selectedScreenings;
+    } else if (movie.selectedScreening) {
+        screenings = [movie.selectedScreening];
+    } else if (movie.screenings && movie.screenings.length > 0) {
+        screenings = movie.screenings;
+    }
+
+    if (screenings.length === 0) {
+        return `
+            <p><strong>Cine:</strong> No indicado</p>
+            <p><strong>Fecha:</strong> No indicada</p>
+            <p><strong>Hora:</strong> No indicada</p>
+        `;
+    }
+
+    const grouped = {};
+
+    screenings.forEach(screening => {
+        const key = `${screening.cinema}|${screening.date}`;
+
+        if (!grouped[key]) {
+            grouped[key] = {
+                cinema: screening.cinema,
+                date: screening.date,
+                times: []
+            };
+        }
+
+        grouped[key].times.push(screening.time);
+    });
+
+    let html = "";
+
+    Object.values(grouped).forEach(group => {
+        group.times.sort();
+
+        html += `
+            <p><strong>Cine:</strong> ${group.cinema}</p>
+            <p><strong>Fecha:</strong> ${formatDateToSpanishText(group.date)}</p>
+            <p><strong>Hora:</strong> ${group.times.join(" / ")}</p>
+        `;
+    });
+
+    return html;
+}
+
+function getMoviesWithClosestScreening() {
+    const now = new Date();
+    const result = [];
+
+    allMovies.forEach(movie => {
+        if (!movie.screenings || movie.screenings.length === 0) {
+            result.push({
+                ...movie,
+                selectedScreening: null
+            });
+            return;
+        }
+
+        const closestScreening = getClosestScreeningByDateTime(movie.screenings, now);
+
+        result.push({
+            ...movie,
+            selectedScreening: closestScreening
+        });
+    });
+
+    return result;
+}
+
+function getClosestScreeningByDateTime(screenings, now) {
+    const futureScreenings = screenings.filter(screening => {
+        const screeningDateTime = new Date(`${screening.date}T${screening.time}`);
+        return screeningDateTime >= now;
+    });
+
+    if (futureScreenings.length > 0) {
+        futureScreenings.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateA - dateB;
+        });
+
+        return futureScreenings[0];
+    }
+
+    screenings.sort((a, b) => {
+        const dateA = new Date(`${a.date}T${a.time}`);
+        const dateB = new Date(`${b.date}T${b.time}`);
+        return dateB - dateA;
+    });
+
+    return screenings[0];
+}
+
+function formatDateToSpanishText(dateValue) {
+    if (!dateValue) {
+        return "No indicada";
+    }
+
+    const parts = dateValue.split("-");
+
+    if (parts.length !== 3) {
+        return dateValue;
+    }
+
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
 function fillCinemaFilter() {
     cinemaFilter.innerHTML = `<option value="">Selecciona un cine</option>`;
 
-    const cinemas = [...new Set(allMovies.map(movie => movie.cinema))]
-        .filter(cinema => cinema && cinema.trim() !== "")
-        .sort();
+    const cinemas = [];
+
+    allMovies.forEach(movie => {
+        if (!movie.screenings) {
+            return;
+        }
+
+        movie.screenings.forEach(screening => {
+            if (screening.cinema && !cinemas.includes(screening.cinema)) {
+                cinemas.push(screening.cinema);
+            }
+        });
+    });
+
+    cinemas.sort();
 
     cinemas.forEach(cinema => {
         const option = document.createElement("option");
@@ -298,41 +439,43 @@ function applyMovieFilters() {
     const selectedCinema = cinemaFilter.value;
     const selectedDate = dateFilter.value;
 
-    let filteredMovies = allMovies;
-
-    if ((selectedFilter === "cinema" || selectedFilter === "both") && selectedCinema !== "") {
-        filteredMovies = filteredMovies.filter(movie => movie.cinema === selectedCinema);
+    if (selectedFilter === "none") {
+        renderMovies();
+        return;
     }
 
-    if ((selectedFilter === "date" || selectedFilter === "both") && selectedDate !== "") {
-        filteredMovies = filteredMovies.filter(movie => movieHasDate(movie, selectedDate));
-    }
+    const result = [];
 
-    renderMovies(filteredMovies);
-}
+    allMovies.forEach(movie => {
+        if (!movie.screenings || movie.screenings.length === 0) {
+            return;
+        }
 
-function movieHasDate(movie, selectedDate) {
-    if (!movie.showtimes) {
-        return false;
-    }
+        let validScreenings = movie.screenings;
 
-    const formattedDate = formatDateToSpanish(selectedDate);
+        if ((selectedFilter === "cinema" || selectedFilter === "both") && selectedCinema !== "") {
+            validScreenings = validScreenings.filter(screening => screening.cinema === selectedCinema);
+        }
 
-    return movie.showtimes.includes(formattedDate);
-}
+        if ((selectedFilter === "date" || selectedFilter === "both") && selectedDate !== "") {
+            validScreenings = validScreenings.filter(screening => screening.date === selectedDate);
+        }
 
-function formatDateToSpanish(dateValue) {
-    const parts = dateValue.split("-");
+        if (validScreenings.length > 0) {
+            validScreenings.sort((a, b) => {
+                const dateA = new Date(`${a.date}T${a.time}`);
+                const dateB = new Date(`${b.date}T${b.time}`);
+                return dateA - dateB;
+            });
 
-    if (parts.length !== 3) {
-        return dateValue;
-    }
+            result.push({
+                ...movie,
+                selectedScreenings: validScreenings
+            });
+        }
+    });
 
-    const year = parts[0];
-    const month = parts[1];
-    const day = parts[2];
-
-    return `${day}/${month}/${year}`;
+    renderMovies(result);
 }
 
 function clearMovieFilters() {
@@ -427,6 +570,22 @@ function editMovie(movieId) {
         return;
     }
 
+    let cinemaValue = "";
+    let showtimesValue = "";
+
+    if (movie.selectedScreenings && movie.selectedScreenings.length > 0) {
+        const firstScreening = movie.selectedScreenings[0];
+        cinemaValue = firstScreening.cinema;
+        showtimesValue = `${formatDateToSpanishText(firstScreening.date)} - ${firstScreening.time}`;
+    } else if (movie.selectedScreening) {
+        cinemaValue = movie.selectedScreening.cinema;
+        showtimesValue = `${formatDateToSpanishText(movie.selectedScreening.date)} - ${movie.selectedScreening.time}`;
+    } else if (movie.screenings && movie.screenings.length > 0) {
+        const firstScreening = movie.screenings[0];
+        cinemaValue = firstScreening.cinema;
+        showtimesValue = `${formatDateToSpanishText(firstScreening.date)} - ${firstScreening.time}`;
+    }
+
     document.getElementById("movieId").value = movie.id;
     document.getElementById("title").value = movie.title;
     document.getElementById("director").value = movie.director;
@@ -435,8 +594,8 @@ function editMovie(movieId) {
     document.getElementById("poster_url").value = movie.poster_url;
     document.getElementById("synopsis").value = movie.synopsis;
     document.getElementById("age_rating").value = movie.age_rating;
-    document.getElementById("cinema").value = movie.cinema;
-    document.getElementById("showtimes").value = movie.showtimes;
+    document.getElementById("cinema").value = cinemaValue;
+    document.getElementById("showtimes").value = showtimesValue;
 
     cancelEditBtn.classList.remove("hidden");
     showSection("adminSection");
@@ -451,6 +610,7 @@ function resetMovieForm() {
 
 async function deleteMovie(movieId) {
     const confirmed = confirm("¿Seguro que quieres eliminar esta película?");
+
     if (!confirmed) {
         return;
     }
@@ -504,7 +664,7 @@ function renderFavorites(favorites) {
                     </a>
                 </h3>
 
-                <button class="danger remove-favorite-btn" data-id="${movie.id}">
+                <button class="danger remove-favorite-btn favorite-remove-btn" data-id="${movie.id}">
                     Quitar de favoritos
                 </button>
             </div>
@@ -522,6 +682,7 @@ function renderFavorites(favorites) {
         });
     });
 }
+
 function showMovieDetail(movieId) {
     const movie = allMovies.find(m => m.id == movieId);
 
@@ -530,10 +691,28 @@ function showMovieDetail(movieId) {
         return;
     }
 
-    const detailContainer = document.getElementById("movieDetailContainer");
+    let screeningsHtml = "<p>No hay sesiones disponibles.</p>";
 
-    detailContainer.innerHTML = `
-        <div class="movie-detail-box">
+    if (movie.screenings && movie.screenings.length > 0) {
+        const tempMovie = {
+            ...movie,
+            selectedScreenings: movie.screenings
+        };
+
+        screeningsHtml = getScreeningsHtml(tempMovie);
+    }
+
+    const existingModal = document.getElementById("movieDetailModal");
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modal = document.createElement("div");
+    modal.id = "movieDetailModal";
+    modal.className = "movie-detail-modal";
+
+    modal.innerHTML = `
+        <div class="movie-detail-modal-content">
             <button class="danger close-detail-btn" onclick="closeMovieDetail()">
                 Cerrar
             </button>
@@ -548,20 +727,31 @@ function showMovieDetail(movieId) {
                     <p><strong>Género:</strong> ${movie.genre}</p>
                     <p><strong>Duración:</strong> ${movie.duration} min</p>
                     <p><strong>Edad recomendada:</strong> ${movie.age_rating}</p>
-                    <p><strong>Cine:</strong> ${movie.cinema}</p>
-                    <p><strong>Horarios:</strong> ${movie.showtimes}</p>
+
+                    <h3>Sesiones disponibles</h3>
+                    ${screeningsHtml}
+
                     <p><strong>Sinopsis:</strong> ${movie.synopsis}</p>
                 </div>
             </div>
         </div>
     `;
 
-    detailContainer.classList.remove("hidden");
+    document.body.appendChild(modal);
+
+    modal.addEventListener("click", event => {
+        if (event.target.id === "movieDetailModal") {
+            closeMovieDetail();
+        }
+    });
 }
+
 function closeMovieDetail() {
-    const detailContainer = document.getElementById("movieDetailContainer");
-    detailContainer.innerHTML = "";
-    detailContainer.classList.add("hidden");
+    const modal = document.getElementById("movieDetailModal");
+
+    if (modal) {
+        modal.remove();
+    }
 }
 
 async function addFavorite(movieId) {
@@ -590,8 +780,8 @@ async function removeFavorite(movieId) {
 
 async function initApp() {
     showSection("inicioSection");
-    await loadSession();
     await loadMovies();
+    await loadSession();
 }
 
 initApp();
